@@ -1,0 +1,78 @@
+---
+
+- hosts: localhost
+  connection: local
+
+  tasks:
+    - homebrew_tap:
+        name: caskroom/fonts # add Heroku tap, Heroku recipe
+    - name: install homebrew apps
+      homebrew: name={{item}} state=latest
+      with_items:
+        - node
+        - mas
+        - imagemagick
+        - redis
+        - postgresql # with Hstore!
+        - qt
+        - rbenv #add ruby install 2.0.0 or 2.2.2?
+        - ruby-build
+    - name: install personal cask applications
+      homebrew_cask: name={{item}} state=present
+      with_items:
+        - google-chrome
+#        - microsoft-office
+        - iterm2
+        - alfred
+#        - dropbox
+        - grammarly
+        - visual-studio-code
+        - spotify
+        - slack
+        - avast-security
+#        - calibre
+#        - licecap
+#        - noun-project
+#        - postico
+#        - postman
+        - skype
+        - skype-for-business
+#        - spectacle
+        # - virtualbox
+        # - virtualbox-extension-pack
+        - vlc
+        - whatsapp
+#        - windscribe
+    - name: Install Mac App Store apps.
+      shell: mas list | grep {{ item }} || mas install {{ item }}
+      with_items:
+#        - 407963104 # Pixelmator
+        - 497799835 # Xcode
+#        - 409183694 # Keynote
+#        - 918207447 # Annotate
+#        - 557168941 # Tweetbot
+        - 425424353 # The Unarchiver
+        - 412448059 # Forklift
+      register: result
+      changed_when: result.stdout.find('Installed') != -1
+    - name: Accept XCode license
+      become: yes
+      shell: xcodebuild -license accept
+    - name: add to sudoers without password
+      become: yes
+      lineinfile: >
+        dest=/etc/sudoers
+        regexp="{{ item.regexp }}"
+        line="{{ item.line }}"
+        state=present
+        create=true
+      with_items:
+        - { regexp: '^gnrx', line: 'gnrx ALL=(ALL) NOPASSWD: ALL' }
+
+
+  roles:
+    - profile-developer
+
+  vars:
+    - git_user_name: Guillaume Noireaux
+    - git_user_email: gnoireaux@gmail.com

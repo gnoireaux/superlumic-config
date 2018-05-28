@@ -74,5 +74,6 @@
     - profile-developer
 
   vars:
+    - computername: per-angusta-laptop-gnrx-mbp
     - git_user_name: Guillaume Noireaux
     - git_user_email: gnoireaux@gmail.com
